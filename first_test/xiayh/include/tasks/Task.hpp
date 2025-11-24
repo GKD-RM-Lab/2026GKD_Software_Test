@@ -2,6 +2,7 @@
 #include "common.hpp"
 #include <atomic>
 #include <iostream>
+#include <memory>
 
 template <typename Derived> class Task {
 private:
@@ -10,7 +11,7 @@ private:
 
 protected:
   constexpr static Data::Val None = 0; // 无数据
-  bool stop_ = false;
+  std::shared_ptr<std::atomic<bool>> stop_ = std::make_shared<std::atomic<bool>>(false);
   std::string key_;
 
   inline Data::Val get_in() { return *p_in_; }
@@ -22,6 +23,7 @@ protected:
 
 public:
   Task(std::string key, Data::Ptr p_in, Data::Ptr p_out) {
+    *stop_ = false;
     key_ = key;
     p_in_ = p_in;
     p_out_ = p_out;
@@ -29,7 +31,5 @@ public:
   ~Task() {}
   void callback(int msg) { static_cast<Derived *>(this)->callback(msg); }
   void run() { static_cast<Derived *>(this)->run(); }
-  void stop() {
-    stop_ = true;
-  }
+  void stop() { *stop_ = true; }
 };

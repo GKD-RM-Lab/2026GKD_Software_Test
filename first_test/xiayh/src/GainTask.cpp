@@ -14,7 +14,9 @@ void GainTask::run() {
   std::cout << "Gt run" << std::endl;
   std::thread([this]() {
     while (true) {
-      if (stop_) {
+      if (*stop_) {
+        std::cout << "Gt stop" << std::endl;
+
         return;
       }
       Data::Val v;

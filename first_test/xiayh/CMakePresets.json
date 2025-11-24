@@ -2,20 +2,17 @@
     "version": 8,
     "configurePresets": [
         {
-            "name": "clang",
-            "displayName": "Clang-cl 20.1.8 x86_64-pc-windows-msvc",
-            "description": "Using compilers: C = D:\\LLVM\\bin\\clang-cl.exe, CXX = D:\\LLVM\\bin\\clang-cl.exe",
+            "name": "gcc",
+            "displayName": "GCC 15.2.0 x86_64-w64-mingw32",
+            "description": "Using compilers: C = D:\\mingw64\\bin\\gcc.exe, CXX = D:\\mingw64\\bin\\g++.exe",
+            "generator": "MinGW Makefiles",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
-          "cacheVariables": {
-            "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-            "CMAKE_C_COMPILER": "D:/LLVM/bin/clang-cl.exe",
-            "CMAKE_CXX_COMPILER": "D:/LLVM/bin/clang-cl.exe",
-            "CMAKE_CXX_STANDARD": "23",
-            "CMAKE_BUILD_TYPE": "Debug"
-          },
-          "environment": {
-            "CXXGLAGS":  "-std=c++23"
-          }
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "D:/mingw64/bin/gcc.exe",
+                "CMAKE_CXX_COMPILER": "D:/mingw64/bin/g++.exe",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
         }
     ]
 }

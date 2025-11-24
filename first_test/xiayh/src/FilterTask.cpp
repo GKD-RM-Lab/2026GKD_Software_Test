@@ -6,7 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <thread>
-#include <format>
+
 
 using namespace std::chrono_literals;
 
@@ -19,9 +19,9 @@ FilterTask::~FilterTask() {};
 void FilterTask::run() {
   std::thread([this]() {
     while (true) {
-      //std::cout << std::boolalpha << stop_ << std::endl;
-      if (stop_) {
-        // std::cout << "Ft stop" << std::endl;
+      // std::cout << std::boolalpha << stop_ << std::endl;
+      if (*stop_) {
+        std::cout << "Ft stop" << std::endl;
         return;
       }
       Data::Val v;
@@ -35,5 +35,4 @@ void FilterTask::run() {
   }).detach();
 }
 
-void FilterTask::callback(int msg) { 
-  set_in(msg); }
+void FilterTask::callback(int msg) { set_in(msg); }

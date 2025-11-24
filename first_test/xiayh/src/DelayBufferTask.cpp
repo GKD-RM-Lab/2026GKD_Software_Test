@@ -14,7 +14,8 @@ DelayBufferTask::~DelayBufferTask() {};
 void DelayBufferTask::run() {
   std::thread([this]() {
     while (true) {
-      if (stop_) {
+      if (*stop_) {
+        std::cout << "Dt stop" << std::endl;
         return;
       }
       Data::Val v;
