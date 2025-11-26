@@ -28,6 +28,26 @@ public:
         }
         tasklist.back()->ready=true;
     }
+    void pop(){
+        SensorTask*tem_task=tasklist.back();
+        if(tem_task->running.joinable()){
+            tem_task->running.join();
+        }
+        delete tem_task;
+        tasklist.pop_back();
+        b_n.pop_back();
+        cout<<"已经删除最后一个任务"<<endl;
+
+    }
+    void callbackuse() {
+        int tem_key, msg;
+        std::cin >> tem_key >> msg;
+        vector<SensorTask*>::iterator it;
+        for (it = tasklist.begin(); it != tasklist.end(); it++) {
+            if ((*it)->key == tem_key)break;
+        }
+        (*it)->callback(msg);
+    }
     std::atomic<int>out{0};
     vector<std::unique_ptr<std::atomic<int>>>b_n;
     vector<SensorTask*>tasklist;
