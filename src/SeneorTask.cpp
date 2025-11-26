@@ -1,4 +1,4 @@
-#include"all.h"
+#include"all.hpp"
 class SensorTask{
 public:
     virtual void run()=0;
@@ -21,7 +21,7 @@ public:
     bool ready;
 };
 
-class Taskfilter:public SensorTask{
+class TaskFilter:public SensorTask{
     void run()override{
         while(is){
             if(*p_in!=0){
@@ -36,7 +36,7 @@ class Taskfilter:public SensorTask{
     void callback(int msg)override{
         *p_in=msg;
     }
-    ~Taskfilter()override{
+    ~TaskFilter()override{
         stop();
         if(running.joinable()){
             running.join();
