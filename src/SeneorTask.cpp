@@ -47,3 +47,32 @@ class Taskfilter:public SensorTask{
         }
     }
 };
+
+class TaskGain:public SensorTask{
+    void run()override{
+        while(is){
+            if(*p_in!=0){
+                std::lock_guard<mutex> lock(mtx);
+                *p_out=*p_in*k;
+                *p_in=0;
+                cout<<"TaskGain "<<key<<" "<<*p_out<<endl;
+            }
+            std::this_thread::sleep_for(std::chrono::microseconds(1));
+        }
+    }
+    void callback(int msg)override{
+        k=msg;
+        *p_in=1;
+    }
+    ~TaskGain()override{
+        stop();
+        if(running.joinable()){
+            running.join();
+        }
+        if(p_in!=nullptr&&p_out!=nullptr){
+            p_in=nullptr;
+            p_out=nullptr;
+        }
+    }
+    int k;
+};
