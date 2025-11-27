@@ -1,10 +1,13 @@
 #include"all.hpp"
+#include<windows.h>//解决中文乱码
 
+std::mutex mtx;             
+std::condition_variable cv;
 void action_1(Taskmanager &A) {
 	while (1) {
 		if (A.out != 0) {
 			std::lock_guard<mutex> lock(mtx);
-			cout << "out为：" << A.out << endl;
+			cout << "out为:" << A.out << endl;
 			A.out = 0;
 			cv.notify_one();
 		}
@@ -35,6 +38,11 @@ void action_2(Taskmanager &A) {
 
 
 int main() {
+
+	#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+    #endif   //解决中文乱码
+	
 	Taskmanager ALL;
 	ALL.b_n.reserve(10000);
 	thread at(action_1, std::ref(ALL));

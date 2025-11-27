@@ -1,109 +1,83 @@
 #include"all.hpp"
-class SensorTask{
-public:
-    virtual void run()=0;
-    virtual void callback(int msg)=0;
-    void stop(){
-        is=false;
-    }
-    SensorTask() : running(&SensorTask::run,this){},ready(false){};
-    virtual ~SensorTask(){
-        stop();
-        if(running.joinable()){
-            running.join();
-        }
-    }
-    int key;
-    std::atomic<int>*p_in;
-    std::atomic<int>*p_out;
-    std::atomic<bool>is{true};
-    std::thread running;
-    bool ready;
-};
 
-class TaskFilter:public SensorTask{
-    void run()override{
-        while(is){
-            if(*p_in!=0){
-                std::lock_guard<mutex> lock(mtx);
-                *p_out=*p_in+1;
-                *p_in=0;
-                cout<<"write filter "<<key<<": "<<*p_out<<endl;
-            }
-            std::this_thread::sleep_for(std::chrono::microseconds(1));
+void TaskFilter::run(){
+    while(is){
+        if(*p_in!=0){
+            std::lock_guard<mutex> lock(mtx);
+            *p_out=*p_in+1;
+            *p_in=0;
+            cout<<"write filter "<<key<<": "<<*p_out<<endl;
         }
+        std::this_thread::sleep_for(std::chrono::microseconds(1));
     }
-    void callback(int msg)override{
-        *p_in=msg;
+}
+void TaskFilter::callback(int msg){
+    *p_in=msg;
+}
+TaskFilter::~TaskFilter(){
+    stop();
+    if(running.joinable()){
+        running.join();
     }
-    ~TaskFilter()override{
-        stop();
-        if(running.joinable()){
-            running.join();
-        }
-        if(p_in!=nullptr&&p_out!=nullptr){
-            p_in=nullptr;
-            p_out=nullptr;
-        }
+    if(p_in!=nullptr&&p_out!=nullptr){
+        p_in=nullptr;
+        p_out=nullptr;
     }
-};
+}
 
-class TaskGain:public SensorTask{
-    void run()override{
-        while(is){
-            if(*p_in!=0){
-                std::lock_guard<mutex> lock(mtx);
-                *p_out=*p_in*k;
-                *p_in=0;
-                cout<<"wriet gain "<<key<<": "<<*p_out<<endl;
-            }
-            std::this_thread::sleep_for(std::chrono::microseconds(1));
-        }
-    }
-    void callback(int msg)override{
-        k=msg;
-        *p_in=1;
-    }
-    ~TaskGain()override{
-        stop();
-        if(running.joinable()){
-            running.join();
-        }
-        if(p_in!=nullptr&&p_out!=nullptr){
-            p_in=nullptr;
-            p_out=nullptr;
-        }
-    }
-    int k;
-};
 
-class TaskDelayBuffer:public SensorTask{
-    void run()override{
-        while(is){
-            if(*p_in!=0){
-                std::lock_guard<mutex> lock(mtx);
-                int t=*p_in;
-                *p_in=0;
-                *p_out=t;
-                cout<<"write delay "<<key<<": "<<*p_out<<endl;
-                std::this_thread::sleep_for(std::chrono::microseconds(1));
-                *p_out=t+1;
-                cout<<"write delay "<<key<<": "<<*p_out<<endl;
-            }
+
+void TaskGain::run(){
+    while(is){
+        if(*p_in!=0){
+            std::lock_guard<mutex> lock(mtx);
+            *p_out=*p_in*k;
+            *p_in=0;
+            cout<<"wriet gain "<<key<<": "<<*p_out<<endl;
+        }
+        std::this_thread::sleep_for(std::chrono::microseconds(1));
+    }
+}
+void TaskGain::callback(int msg){
+    k=msg;
+    *p_in=1;
+}
+TaskGain::~TaskGain(){
+    stop();
+    if(running.joinable()){
+        running.join();
+    }
+    if(p_in!=nullptr&&p_out!=nullptr){
+        p_in=nullptr;
+        p_out=nullptr;
+    }
+}
+void TaskDelayBuffer::run(){
+    while(is){
+        if(*p_in!=0){
+            std::lock_guard<mutex> lock(mtx);
+            int t=*p_in;
+            *p_in=0;
+            *p_out=t;
+            cout<<"write delay "<<key<<": "<<*p_out<<endl;
             std::this_thread::sleep_for(std::chrono::microseconds(1));
+            *p_out=t+1;
+            cout<<"write delay "<<key<<": "<<*p_out<<endl;
         }
+        std::this_thread::sleep_for(std::chrono::microseconds(1));
     }
-    void callback(int msg)override{
-        *p_in=msg;
+}
+void TaskDelayBuffer::callback(int msg){
+    *p_in=msg;
+}
+TaskDelayBuffer::~TaskDelayBuffer(){
+    stop();
+    if(running.joinable()){
+        running.join();
     }
-    ~TaskDelayBuffer()override{
-        stop();
-        if(running.joinable()){
-            running.join();
-        }
-        if(p_in!=nullptr&&p_out!=nullptr){
-            p_in=nullptr;
-            p_out=nullptr;
-        }
+    if(p_in!=nullptr&&p_out!=nullptr){
+        p_in=nullptr;
+        p_out=nullptr;
     }
-};
+}
+
